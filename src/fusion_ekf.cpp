@@ -41,7 +41,7 @@ FusionEKF::FusionEKF() {
 
   // State transition matrix
   ekf_.F_ = MatrixXd(4, 4);
-	ekf_.F_ << 1, 0, 1, 0,
+  ekf_.F_ << 1, 0, 1, 0,
              0, 1, 0, 1,
              0, 0, 1, 0,
              0, 0, 0, 1;
@@ -84,9 +84,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
     // Initialize uncertainty covariance matrix. For velocity the values are large.
     ekf_.P_ = MatrixXd(4, 4);
     ekf_.P_ << 1, 0, 0, 0,
-			         0, 1, 0, 0,
-			         0, 0, 1000, 0,
-			         0, 0, 0, 1000;
+               0, 1, 0, 0,
+               0, 0, 1000, 0,
+               0, 0, 0, 1000;
 
     // Record the first timestamp.
     previous_timestamp_ = m.timestamp_;
@@ -102,24 +102,24 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
 
   // Get the elapsed time in seconds.
   float dt = (m.timestamp_ - previous_timestamp_) / 1000000.0;
-	previous_timestamp_ = m.timestamp_;
+  previous_timestamp_ = m.timestamp_;
 
   // Update the state transition matrix F according to the new elapsed time.
   ekf_.F_(0, 2) = dt;
-	ekf_.F_(1, 3) = dt;
+  ekf_.F_(1, 3) = dt;
 
   // Set the process covariance matrix Q (noise)  .
   // Q = G * [[noise_ax, 0], [0, noise_ay]] * G', where G = [[dt2/2, 0], [0, dt2/2], [dt, 0], [0, dt]]
-	float dt2 = dt * dt,
+  float dt2 = dt * dt,
         dt3 = dt2 * dt,
         dt4 = dt3 * dt;
   const float noise_ax = 9,
               noise_ay = 9;
-	ekf_.Q_ = MatrixXd(4, 4);
-	ekf_.Q_ << dt4 * noise_ax / 4, 0, dt3 * noise_ax / 2, 0,
-	           0, dt4 * noise_ay / 4, 0, dt3 * noise_ay / 2,
-	           dt3 * noise_ax / 2, 0, dt2 * noise_ax, 0,
-	           0, dt3 * noise_ay / 2, 0, dt2 * noise_ay;
+  ekf_.Q_ = MatrixXd(4, 4);
+  ekf_.Q_ << dt4 * noise_ax / 4, 0, dt3 * noise_ax / 2, 0,
+             0, dt4 * noise_ay / 4, 0, dt3 * noise_ay / 2,
+             dt3 * noise_ax / 2, 0, dt2 * noise_ax, 0,
+             0, dt3 * noise_ay / 2, 0, dt2 * noise_ay;
   ekf_.Predict();
 
   /*****************************************************************************

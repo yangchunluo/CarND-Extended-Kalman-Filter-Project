@@ -14,21 +14,20 @@ KalmanFilter::~KalmanFilter() {}
 void KalmanFilter::Predict() {
   x_ = F_ * x_;
   MatrixXd Ft = F_.transpose();
-	P_ = F_ * P_ * Ft + Q_;
+  P_ = F_ * P_ * Ft + Q_;
 }
 
 // Need the caller to set up: R_, H_, (and x_, P_)
 // @param error: between actual measurement and projected measurement
 void KalmanFilter::Update(const VectorXd &error) {
-	MatrixXd Ht = H_.transpose();
-	MatrixXd S = H_ * P_ * Ht + R_;
-	MatrixXd Si = S.inverse();
-	MatrixXd PHt = P_ * Ht;
-	MatrixXd K = PHt * Si;
+  MatrixXd PHt = P_ * H_.transpose();
+  MatrixXd S = H_ * PHt + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd K = PHt * Si;
 
-	// New estimates
-	x_ = x_ + (K * error);
-	long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
-	P_ = (I - K * H_) * P_;
+  // New estimates
+  x_ = x_ + (K * error);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
 }

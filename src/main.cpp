@@ -82,12 +82,12 @@ int main() {
       // Lidar measurement: px, py
       meas_package.sensor_type_ = MeasurementPackage::LASER;
       meas_package.raw_measurements_ = VectorXd(2);
-    	readVectorXd(iss, meas_package.raw_measurements_);
+      readVectorXd(iss, meas_package.raw_measurements_);
     } else if (sensor_type.compare("R") == 0) {
       // Radar measurement: ro, theta, ro_dot
       meas_package.sensor_type_ = MeasurementPackage::RADAR;
       meas_package.raw_measurements_ = VectorXd(3);
-    	readVectorXd(iss, meas_package.raw_measurements_);
+      readVectorXd(iss, meas_package.raw_measurements_);
     }
     
     // Read timestamp

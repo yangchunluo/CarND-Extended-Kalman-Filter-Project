@@ -13,30 +13,30 @@ Tools::~Tools() {}
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
   if (estimations.size() == 0) {
-	    throw "the estimation vector size should not be zero";
-	}
-	if (estimations.size() != ground_truth.size()) {
-	    throw "the estimation vector size should equal ground truth vector size";
-	}
+      throw "the estimation vector size should not be zero";
+  }
+  if (estimations.size() != ground_truth.size()) {
+      throw "the estimation vector size should equal ground truth vector size";
+  }
 
   // Initialization
-	VectorXd rmse(estimations[0].size());
+  VectorXd rmse(estimations[0].size());
   for (int i = 0; i < rmse.size(); i++) {
     rmse(i) = 0;
   }
 
-	// Accumulate squared residuals
-	for(int i = 0; i < estimations.size(); i++) {
+  // Accumulate squared residuals
+  for(int i = 0; i < estimations.size(); i++) {
     VectorXd diff = ground_truth[i] - estimations[i];
     diff = diff.array() * diff.array();
     rmse += diff;
-	}
+  }
 
-	// Calculate the mean
-	rmse /= estimations.size();
+  // Calculate the mean
+  rmse /= estimations.size();
 
-	// Calculate the squared root
-	return rmse.array().sqrt();
+  // Calculate the squared root
+  return rmse.array().sqrt();
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd &x_state) {
@@ -59,7 +59,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x_state) {
     return Hj;
   }
 
-	// Compute the Jacobian matrix
+  // Compute the Jacobian matrix
   Hj << px / c2, py / c2, 0, 0,
         -(py / c1), px / c1, 0, 0,
         py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;

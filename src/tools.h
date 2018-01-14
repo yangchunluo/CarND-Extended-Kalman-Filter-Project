@@ -25,9 +25,16 @@ public:
   static VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);
 
   /**
-  * A helper method to calculate Jacobians.
+  * A helper method to calculate Jacobians for radar measurement function.
   */
   static MatrixXd CalculateJacobian(const VectorXd& x_state);
+
+  /**
+  * Map estimates to radar measurement.
+  */
+  static VectorXd RadarMeasurementFn(const VectorXd& x_state);
+
+  static constexpr float PI=3.14159265358979f;
 
 };
 

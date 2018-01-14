@@ -52,10 +52,6 @@ FusionEKF::FusionEKF() {
 FusionEKF::~FusionEKF() {}
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
-  if (m.sensor_type_ == MeasurementPackage::LASER) {
-    return;
-  }
-
   /*****************************************************************************
    *  Initialization
    ****************************************************************************/
@@ -86,8 +82,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
 
     // Initialize uncertainty covariance matrix. For velocity the values are large.
     ekf_.P_ = MatrixXd(4, 4);
-    ekf_.P_ << 1, 0, 0, 0,
-			         0, 1, 0, 0,
+    ekf_.P_ << 1000, 0, 0, 0,
+			         0, 1000, 0, 0,
 			         0, 0, 1000, 0,
 			         0, 0, 0, 1000;
 
@@ -133,14 +129,28 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
       // Radar updates: use Jacobian matrix to linearize the measurement function.
       ekf_.H_ = Tools::CalculateJacobian(ekf_.x_); 
       ekf_.R_ = R_radar_;
-      ekf_.Update(m.raw_measurements_);
+      // Get the project measurement from estimates.
+      VectorXd projected = Tools::RadarMeasurementFn(ekf_.x_);
+      // The angle measurement must be adjusted to between -pi to pi.
+      auto measurements = m.raw_measurements_;
+      if (measurements(1) > Tools::PI) {
+        measurements(1) -= 2 * Tools::PI;
+      } else if (measurements(1) < -Tools::PI) {
+        measurements(1) += 2 * Tools::PI;
+      }
+      if (!(measurements(1) >= -Tools::PI && measurements(1) <= Tools::PI)) {
+        printf("XXXXXXX%f\n", measurements(1));
+        throw "angle out of range";
+      }
+      ekf_.Update(measurements - projected);
       break;
     }
     case MeasurementPackage::LASER: {
       // Laser updates
       ekf_.H_ = H_laser_;
       ekf_.R_ = R_laser_;
-      ekf_.Update(m.raw_measurements_);
+      VectorXd projected = ekf_.H_ * ekf_.x_;
+      ekf_.Update(m.raw_measurements_ - projected);
       break;
     }
     default:

@@ -10,16 +10,6 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
-  x_ = x_in;
-  P_ = P_in;
-  F_ = F_in;
-  H_ = H_in;
-  R_ = R_in;
-  Q_ = Q_in;
-}
-
 // Need the caller to set up: F_, (and x_, P_)
 void KalmanFilter::Predict() {
   x_ = F_ * x_;
@@ -28,9 +18,8 @@ void KalmanFilter::Predict() {
 }
 
 // Need the caller to set up: R_, H_, (and x_, P_)
-void KalmanFilter::Update(const VectorXd &z) {
-  VectorXd z_pred = H_ * x_;
-	VectorXd y = z - z_pred;
+// @param error: between actual measurement and projected measurement
+void KalmanFilter::Update(const VectorXd &error) {
 	MatrixXd Ht = H_.transpose();
 	MatrixXd S = H_ * P_ * Ht + R_;
 	MatrixXd Si = S.inverse();
@@ -38,15 +27,8 @@ void KalmanFilter::Update(const VectorXd &z) {
 	MatrixXd K = PHt * Si;
 
 	// New estimates
-	x_ = x_ + (K * y);
+	x_ = x_ + (K * error);
 	long x_size = x_.size();
 	MatrixXd I = MatrixXd::Identity(x_size, x_size);
 	P_ = (I - K * H_) * P_;
-}
-
-void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
 }

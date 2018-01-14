@@ -3,6 +3,7 @@
 #include "Eigen/Dense"
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -130,19 +131,25 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
       ekf_.H_ = Tools::CalculateJacobian(ekf_.x_); 
       ekf_.R_ = R_radar_;
       // Get the project measurement from estimates.
-      VectorXd projected = Tools::RadarMeasurementFn(ekf_.x_);
+      auto projected = Tools::RadarMeasurementFn(ekf_.x_);
       // The angle measurement must be adjusted to between -pi to pi.
       auto measurements = m.raw_measurements_;
-      if (measurements(1) > Tools::PI) {
+      while (measurements(1) > Tools::PI) {
         measurements(1) -= 2 * Tools::PI;
-      } else if (measurements(1) < -Tools::PI) {
+      }
+      while (measurements(1) < -Tools::PI) {
         measurements(1) += 2 * Tools::PI;
       }
-      if (!(measurements(1) >= -Tools::PI && measurements(1) <= Tools::PI)) {
-        printf("XXXXXXX%f\n", measurements(1));
-        throw "angle out of range";
+      // The angle measurement in the error is guarenteed to be -2pi to 2pi.
+      // Adjust it to be close to 0.
+      VectorXd error = measurements - projected;
+      if (error(1) < -Tools::PI) {
+        error(1) += 2 * Tools::PI;
+      } else if (error(1) > Tools::PI) {
+        error(1) -= 2 * Tools::PI;
       }
-      ekf_.Update(measurements - projected);
+      assert(fabs(error(1) < Tools::PI));
+      ekf_.Update(error);
       break;
     }
     case MeasurementPackage::LASER: {
@@ -157,7 +164,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &m) {
       throw "unknown sensor type";
   }
 
-  // print the output
+  // Print the output
   cout << "x_ = " << ekf_.x_ << endl;
   cout << "P_ = " << ekf_.P_ << endl;
 }

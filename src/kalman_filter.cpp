@@ -20,14 +20,14 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
-// Need the caller to set up: F_, x_, P_
+// Need the caller to set up: F_, (and x_, P_)
 void KalmanFilter::Predict() {
   x_ = F_ * x_;
   MatrixXd Ft = F_.transpose();
 	P_ = F_ * P_ * Ft + Q_;
 }
 
-// Need the caller to set up: H_, x_, P_
+// Need the caller to set up: R_, H_, (and x_, P_)
 void KalmanFilter::Update(const VectorXd &z) {
   VectorXd z_pred = H_ * x_;
 	VectorXd y = z - z_pred;
@@ -37,7 +37,7 @@ void KalmanFilter::Update(const VectorXd &z) {
 	MatrixXd PHt = P_ * Ht;
 	MatrixXd K = PHt * Si;
 
-	// New estimate
+	// New estimates
 	x_ = x_ + (K * y);
 	long x_size = x_.size();
 	MatrixXd I = MatrixXd::Identity(x_size, x_size);

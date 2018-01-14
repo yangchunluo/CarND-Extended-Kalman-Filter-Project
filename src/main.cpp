@@ -40,13 +40,10 @@ int main() {
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
 
-  // Tools class is used to compute the RMSE later
-  Tools tools;
-
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
-  h.onMessage([&fusionEKF, &tools, &estimations, &ground_truth]
+  h.onMessage([&fusionEKF, &estimations, &ground_truth]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     
     // "42" at the start of the message means there's a websocket message event.
@@ -110,7 +107,7 @@ int main() {
     estimations.push_back(estimate);
 
     // Compute the running error metric
-    VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+    VectorXd RMSE = Tools::CalculateRMSE(estimations, ground_truth);
 
     // Assemble the message to be sent back
     json msgJson;

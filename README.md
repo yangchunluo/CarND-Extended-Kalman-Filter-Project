@@ -35,7 +35,7 @@ Other setup information can be found in the original [README](README-orig.md) fi
 </table>
 
 #### Dataset1
-<img src="Docs/dataset1-result.jpg" width=500/>
+<img src="Docs/dataset1-result.jpg" width=500 border=1/>
 
 #### Dataset2
-<img src="Docs/dataset2-result.jpg" width=500/>
+<img src="Docs/dataset2-result.jpg" width=500 border=1/>
